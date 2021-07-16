@@ -1,0 +1,203 @@
+#author =A.santhosh kumar
+#email id = santhosh kumar.anantharaju@gmail.com
+from datetime import date
+import pyttsx3
+import speech_recognition as sr
+import datetime
+import os
+import cv2
+import random
+from requests import get
+import wikipedia
+import webbrowser
+import pywhatkit as kit
+import smtplib
+import sys
+import time
+import pyjokes
+import requests
+import pyautogui
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import os.path
+
+
+engine = pyttsx3.init()
+voices = engine.getProperty('voices');
+print(voices[1].id)
+engine.setProperty('voices', voices[len(voices) - 1].id)
+
+#text to speech
+def speak(audio):
+    engine.say(audio)
+    print(audio)
+    engine.runAndWait()
+
+
+#To convert voice into text
+def  takecommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source,timeout=5,phrase_time_limit=8)
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"user said: {query}")
+
+    except Exception as e:
+        speak("Say that again please...")
+        return "none"
+    return query
+# if 'alexa' in query:
+#                 query = query.replace('alexa', '')
+#                 print(query)
+#to wish
+def wish():
+    hour = int(datetime.datetime.now().hour)
+    tt = time.strftime("%I:%M %p")
+    td = date.today()
+    T= td.strftime("%A %D ")
+    if hour >= 0 and hour <= 12:
+        speak(f"good morning, its {tt},and date{T}")
+
+    elif hour >= 12 and hour <= 18:
+        speak(f"good afternoon, its {tt},and date{T}")
+    else:
+        speak(f"good evening, its {tt},and date{T}")
+    speak("i am june sir. please tell me how may i help you")
+def camera():
+    camera = cv2.VideoCapture(0)  # vid = cv2.VideoCapture(0)
+    while True:
+        ret, frame = camera.read()
+        cv2.imshow("frame", frame)
+        print("camera is open ")
+        print("smile please")
+        if cv2.waitKey(1) == ord("w"):
+            break
+    camera.release(),
+
+def news():
+    main_url = 'http://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey="4873a107f89c430aa9a2228def97183d"'
+
+    main_page = requests.get(main_url).json()
+    print(main_page)
+    articles = main_page["articles"]
+    print(articles)
+    head = []
+    day = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"]
+    for ar in articles:
+        head.append(ar["title"])
+    for i in range(len(day)):
+        # print(f"today's {day[i]} news is: ", head[i])
+        speak(f"today's {day[i]} news is: {head[i]}")
+
+# if __name__ == "__main__":
+
+def wake():
+    if "wakeup" in wake:
+        speak('welcome boss glad to see you')
+        news()
+    elif "lets start " in wake:
+        speak("yes boss switching into task mode")
+        task()
+    elif "see you soon " in wake:
+        speak("yes boss we have a great work ")
+        speak("see you again boss")
+        sys.exit()
+    else:
+        speak("say it again boss")
+wish()
+while True:
+    def task():
+
+        query = takecommand().lower()
+        if " web camera" in query or " cam" in query:
+            camera = cv2.VideoCapture(0)  # vid = cv2.VideoCapture(0)
+            while True:
+                ret, frame = camera.read()
+                cv2.imshow("frame", frame)
+                print("camera is open ")
+                print("smile please")
+                if cv2.waitKey(1) == ord("w"):
+                    break
+            camera.release(),
+
+        elif "notepad" in query:
+            npath = "C:\\Windows\\system32\\notepad.exe"
+            os.startfile(npath)
+        elif "close notepad" in query:
+            speak("okay sir, closing notepad")
+            os.system("taskkill /f /im notepad.exe")
+        elif " hi " in query or "hello" in query or "hi buddy" in query:
+            speak("Hi boss ,How do you do ")
+        elif "ip address" in query:
+            ip = get('https://api.ipify.org').text
+            speak(f"your IP address is {ip}")
+        elif "wikipedia" in query:
+            speak("searching wikipedia....")
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences=5)
+            speak("according to wikipedia")
+            speak(results)
+            print(results)
+        elif "open youtube" in query:
+            webbrowser.open("www.youtube.com")
+
+        elif "open Facebook" in query:
+            webbrowser.open("www.facebook.com")
+
+        elif "open stackoverflow" in query:
+            webbrowser.open("www.stackoverflow.com")
+
+        elif "open google" in query:
+            speak("sir, what should i search on google")
+            cm = takecommand().lower()
+            webbrowser.open(f"{cm}")
+        elif 'timer' in query or 'stopwatch' in query:
+            speak("For how many minutes?")
+            timing = takecommand()
+            timing = timing.replace('minutes', '')
+            timing = timing.replace('minute', '')
+            timing = timing.replace('for', '')
+            timing = float(timing)
+            timing = timing * 60
+            speak(f'I will remind you in {timing} seconds')
+
+            time.sleep(timing)
+            speak('Your time has been finished sir')
+        elif " joke" in query:
+            joke = pyjokes.get_joke()
+            speak(joke)
+
+        elif "shut down pc" in query:
+            os.system("shutdown /s /t 5")
+
+        elif "restart pc" in query:
+            os.system("shutdown /r /t 5")
+
+        elif "sleep my laptop" in query:
+            os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+        elif " mute " in query:
+            speak("yes boss we have a great work ")
+            speak("see you again boss")
+            sys.exit()
+        elif 'play' in query:
+            song = query.replace('play', '')
+            speak('playing ' + song)
+            kit.playonyt(song)
+        elif "news" in query:
+            speak("here is you are news boss!")
+            news()
+
+    task()
+    if __name__ == "__main__":
+        # while True:
+            common = takecommand()
+            if "wakeup" in common:
+                task()
+            elif " quite" in common:
+                sys.exit()
